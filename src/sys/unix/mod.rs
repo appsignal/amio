@@ -40,14 +40,19 @@ pub fn pipe() -> ::io::Result<(Io, Io)> {
 }
 
 pub fn from_nix_error(err: ::nix::Error) -> ::io::Error {
-    ::io::Error::from_raw_os_error(err.errno() as i32)
+    match err {
+        nix::Error::Sys(errno) => {
+            ::io::Error::from_raw_os_error(errno as i32)
+        },
+        _ => {
+            ::io::Error::new(::io::ErrorKind::Other, err)
+        }
+    }
 }
 
 mod nix {
-    pub use nix::{
-        c_int,
-        Error,
-    };
+    pub use nix::Error;
+    pub use nix::libc::c_int;
     pub use nix::errno::{EINPROGRESS, EAGAIN};
     pub use nix::fcntl::{fcntl, FcntlArg, O_NONBLOCK};
     pub use nix::sys::socket::{

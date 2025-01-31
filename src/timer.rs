@@ -297,6 +297,7 @@ struct EntryLinks {
 pub type TimerResult<T> = Result<T, TimerError>;
 
 #[derive(Debug)]
+#[allow(dead_code)]
 pub struct TimerError {
     kind: TimerErrorKind,
     desc: &'static str,
