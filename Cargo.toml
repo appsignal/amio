@@ -2,6 +2,7 @@
 
 name          = "amio"
 version       = "0.1.0"
+edition       = "2015"
 license       = "MIT"
 authors       = ["Carl Lerche <me@carllerche.com>"]
 description   = "Lightweight non-blocking IO"
