@@ -80,7 +80,6 @@
 //! ```
 
 extern crate bytes;
-extern crate time;
 extern crate slab;
 extern crate libc;
 

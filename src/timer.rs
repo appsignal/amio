@@ -1,6 +1,5 @@
 use token::Token;
 use util::Slab;
-use time::precise_time_ns;
 use std::{usize, iter};
 use std::cmp::max;
 
@@ -8,6 +7,16 @@ use self::TimerErrorKind::TimerOverflow;
 
 const EMPTY: Token = Token(usize::MAX);
 const NS_PER_MS: u64 = 1_000_000;
+
+/// Return the current precise time in nanoseconds
+pub fn precise_time_ns() -> u64 {
+    use libc::{clock_gettime, timespec, CLOCK_MONOTONIC};
+    unsafe {
+        let mut ts: timespec = std::mem::zeroed();
+        clock_gettime(CLOCK_MONOTONIC, &mut ts);
+        (ts.tv_sec as u64) * 1_000_000_000 + (ts.tv_nsec as u64)
+    }
+}
 
 // Implements coarse-grained timeouts using an algorithm based on hashed timing
 // wheels by Varghese & Lauck.

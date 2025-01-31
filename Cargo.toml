@@ -16,7 +16,6 @@ log    = "*"
 nix    = "0.5.0"
 libc   = "*"
 slab   = "0.1.0"
-time   = "0.1.33"
 bytes  = "0.3.0"
 net2   = { version = "*", default-features = false }
 
