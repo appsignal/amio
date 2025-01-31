@@ -25,7 +25,7 @@ pub struct Selector {
 impl Selector {
     pub fn new() -> io::Result<Selector> {
         let id = NEXT_ID.fetch_add(1, Ordering::Relaxed);
-        let kq = try!(kqueue().map_err(super::from_nix_error));
+        let kq = kqueue().map_err(super::from_nix_error)?;
 
         Ok(Selector {
             id: id,
@@ -44,8 +44,8 @@ impl Selector {
             tv_nsec: ((x % 1000) * 1_000_000) as c_long
         });
 
-        let cnt = try!(kevent_ts(self.kq, &[], evts.as_mut_slice(), timeout)
-                                  .map_err(super::from_nix_error));
+        let cnt = kevent_ts(self.kq, &[], evts.as_mut_slice(), timeout)
+                                  .map_err(super::from_nix_error)?;
 
         self.changes.sys_events.clear();
 

@@ -94,7 +94,7 @@ impl<H: Handler> EventLoop<H> {
 
     pub fn configured(config: EventLoopConfig) -> io::Result<EventLoop<H>> {
         // Create the IO poller
-        let mut poll = try!(Poll::new());
+        let mut poll = Poll::new()?;
 
         // Create the timer
         let mut timer = Timer::new(
@@ -103,10 +103,10 @@ impl<H: Handler> EventLoop<H> {
             config.timer_capacity);
 
         // Create cross thread notification queue
-        let notify = try!(Notify::with_capacity(config.notify_capacity));
+        let notify = Notify::with_capacity(config.notify_capacity)?;
 
         // Register the notification wakeup FD with the IO poller
-        try!(poll.register(&notify, NOTIFY, EventSet::readable() | EventSet::writable() , PollOpt::edge()));
+        poll.register(&notify, NOTIFY, EventSet::readable() | EventSet::writable() , PollOpt::edge())?;
 
         // Set the timer's starting time reference point
         timer.setup();
@@ -244,7 +244,7 @@ impl<H: Handler> EventLoop<H> {
 
         while self.run {
             // Execute ticks as long as the event loop is running
-            try!(self.run_once(handler, None));
+            self.run_once(handler, None)?;
         }
 
         Ok(())

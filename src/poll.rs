@@ -10,7 +10,7 @@ pub struct Poll {
 impl Poll {
     pub fn new() -> io::Result<Poll> {
         Ok(Poll {
-            selector: try!(sys::Selector::new()),
+            selector: sys::Selector::new()?,
             events: sys::Events::new(),
         })
     }
@@ -21,7 +21,7 @@ impl Poll {
         trace!("registering with poller");
 
         // Register interests for this socket
-        try!(io.register(&mut self.selector, token, interest, opts));
+        io.register(&mut self.selector, token, interest, opts)?;
 
         Ok(())
     }
@@ -32,7 +32,7 @@ impl Poll {
         trace!("registering with poller");
 
         // Register interests for this socket
-        try!(io.reregister(&mut self.selector, token, interest, opts));
+        io.reregister(&mut self.selector, token, interest, opts)?;
 
         Ok(())
     }
@@ -43,13 +43,13 @@ impl Poll {
         trace!("deregistering IO with poller");
 
         // Deregister interests for this socket
-        try!(io.deregister(&mut self.selector));
+        io.deregister(&mut self.selector)?;
 
         Ok(())
     }
 
     pub fn poll(&mut self, timeout_ms: Option<usize>) -> io::Result<usize> {
-        try!(self.selector.select(&mut self.events, timeout_ms));
+        self.selector.select(&mut self.events, timeout_ms)?;
         Ok(self.events.len())
     }
 

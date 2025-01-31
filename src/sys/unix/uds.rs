@@ -18,13 +18,13 @@ impl UnixSocket {
     }
 
     fn new(ty: nix::SockType) -> io::Result<UnixSocket> {
-        let fd = try!(net::socket(nix::AddressFamily::Unix, ty, true));
+        let fd = net::socket(nix::AddressFamily::Unix, ty, true)?;
         Ok(From::from(Io::from_raw_fd(fd)))
     }
 
     /// Connect the socket to the specified address
     pub fn connect<P: AsRef<Path> + ?Sized>(&self, addr: &P) -> io::Result<bool> {
-        net::connect(&self.io, &try!(to_nix_addr(addr)))
+        net::connect(&self.io, &to_nix_addr(addr)?)
     }
 
     /// Listen for incoming requests
@@ -40,7 +40,7 @@ impl UnixSocket {
 
     /// Bind the socket to the specified address
     pub fn bind<P: AsRef<Path> + ?Sized>(&self, addr: &P) -> io::Result<()> {
-        net::bind(&self.io, &try!(to_nix_addr(addr)))
+        net::bind(&self.io, &to_nix_addr(addr)?)
     }
 
     pub fn try_clone(&self) -> io::Result<UnixSocket> {
@@ -51,8 +51,8 @@ impl UnixSocket {
     pub fn read_recv_fd(&mut self, buf: &mut [u8]) -> io::Result<(usize, Option<RawFd>)> {
         let iov = [nix::IoVec::from_mut_slice(buf)];
         let mut cmsgspace: nix::CmsgSpace<[RawFd; 1]> = nix::CmsgSpace::new();
-        let msg = try!(nix::recvmsg(self.io.as_raw_fd(), &iov, Some(&mut cmsgspace), MsgFlags::empty())
-                           .map_err(super::from_nix_error));
+        let msg = nix::recvmsg(self.io.as_raw_fd(), &iov, Some(&mut cmsgspace), MsgFlags::empty())
+                           .map_err(super::from_nix_error)?;
         let mut fd = None;
         for cmsg in msg.cmsgs() {
             if let nix::ControlMessage::ScmRights(fds) = cmsg {

@@ -21,13 +21,13 @@ impl UdpSocket {
 
     pub fn bound(addr: &SocketAddr) -> io::Result<UdpSocket> {
         // Create the socket
-        let sock = try!(match *addr {
+        let sock = match *addr {
             SocketAddr::V4(..) => UdpSocket::v4(),
             SocketAddr::V6(..) => UdpSocket::v6(),
-        });
+        }?;
 
         // Bind the socket
-        try!(sock.bind(addr));
+        sock.bind(addr)?;
 
         Ok(sock)
     }

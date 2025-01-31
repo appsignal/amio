@@ -29,11 +29,11 @@ impl TcpStream {
     /// `TcpStream::connect_stream` to transfer ownership into mio and schedule
     /// the connect operation.
     pub fn connect(addr: &SocketAddr) -> io::Result<TcpStream> {
-        let sock = try!(match *addr {
+        let sock = match *addr {
             SocketAddr::V4(..) => TcpBuilder::new_v4(),
             SocketAddr::V6(..) => TcpBuilder::new_v6(),
-        });
-        TcpStream::connect_stream(try!(sock.to_tcp_stream()), addr)
+        }?;
+        TcpStream::connect_stream(sock.to_tcp_stream()?, addr)
     }
 
     /// Creates a new `TcpStream` from the pending socket inside the given
@@ -57,7 +57,7 @@ impl TcpStream {
     pub fn connect_stream(stream: net::TcpStream,
                           addr: &SocketAddr) -> io::Result<TcpStream> {
         Ok(TcpStream {
-            sys: try!(sys::TcpStream::connect(stream, addr)),
+            sys: sys::TcpStream::connect(stream, addr)?,
         })
     }
 
@@ -164,21 +164,21 @@ impl TcpListener {
     /// ownership into mio.
     pub fn bind(addr: &SocketAddr) -> io::Result<TcpListener> {
         // Create the socket
-        let sock = try!(match *addr {
+        let sock = match *addr {
             SocketAddr::V4(..) => TcpBuilder::new_v4(),
             SocketAddr::V6(..) => TcpBuilder::new_v6(),
-        });
+        }?;
 
         // Set SO_REUSEADDR
-        try!(sock.reuse_address(true));
+        sock.reuse_address(true)?;
 
         // Bind the socket
-        try!(sock.bind(addr));
+        sock.bind(addr)?;
 
         // listen
-        let listener = try!(sock.listen(1024));
+        let listener = sock.listen(1024)?;
         Ok(TcpListener {
-            sys: try!(sys::TcpListener::new(listener, addr)),
+            sys: sys::TcpListener::new(listener, addr)?,
         })
     }
 

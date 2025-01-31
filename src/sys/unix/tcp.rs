@@ -31,7 +31,7 @@ fn set_nonblock(s: &AsRawFd) -> io::Result<()> {
 
 impl TcpStream {
     pub fn connect(stream: net::TcpStream, addr: &SocketAddr) -> io::Result<TcpStream> {
-        try!(set_nonblock(&stream));
+        set_nonblock(&stream)?;
 
         match stream.connect(addr) {
             Ok(..) => {}
@@ -114,7 +114,7 @@ impl Write for TcpStream {
 impl Evented for TcpStream {
     fn register(&self, selector: &mut Selector, token: Token,
                 interest: EventSet, opts: PollOpt) -> io::Result<()> {
-        try!(self.associate_selector(selector));
+        self.associate_selector(selector)?;
         EventedFd(&self.as_raw_fd()).register(selector, token, interest, opts)
     }
 
@@ -145,7 +145,7 @@ impl AsRawFd for TcpStream {
 
 impl TcpListener {
     pub fn new(inner: net::TcpListener, _addr: &SocketAddr) -> io::Result<TcpListener> {
-        try!(set_nonblock(&inner));
+        set_nonblock(&inner)?;
         Ok(TcpListener {
             inner: inner,
             selector_id: Cell::new(None),
@@ -167,7 +167,7 @@ impl TcpListener {
 
     pub fn accept(&self) -> io::Result<Option<(TcpStream, SocketAddr)>> {
         self.inner.accept().and_then(|(s, a)| {
-            try!(set_nonblock(&s));
+            set_nonblock(&s)?;
             Ok((TcpStream {
                 inner: s,
                 selector_id: Cell::new(None),
@@ -199,7 +199,7 @@ impl TcpListener {
 impl Evented for TcpListener {
     fn register(&self, selector: &mut Selector, token: Token,
                 interest: EventSet, opts: PollOpt) -> io::Result<()> {
-        try!(self.associate_selector(selector));
+        self.associate_selector(selector)?;
         EventedFd(&self.as_raw_fd()).register(selector, token, interest, opts)
     }
 

@@ -144,7 +144,7 @@ impl UdpSocket {
 
 impl Evented for UdpSocket {
     fn register(&self, selector: &mut Selector, token: Token, interest: EventSet, opts: PollOpt) -> io::Result<()> {
-        try!(self.associate_selector(selector));
+        self.associate_selector(selector)?;
         self.io.register(selector, token, interest, opts)
     }
 

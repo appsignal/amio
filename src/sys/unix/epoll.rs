@@ -21,7 +21,7 @@ pub struct Selector {
 impl Selector {
     pub fn new() -> io::Result<Selector> {
         let id = NEXT_ID.fetch_add(1, Ordering::Relaxed);
-        let epfd = try!(epoll_create().map_err(super::from_nix_error));
+        let epfd = epoll_create().map_err(super::from_nix_error)?;
 
         Ok(Selector {
             id: id,
@@ -49,8 +49,8 @@ impl Selector {
         };
 
         // Wait for epoll events for at most timeout_ms milliseconds
-        let cnt = try!(epoll_wait(self.epfd, dst, timeout_ms as isize)
-                           .map_err(super::from_nix_error));
+        let cnt = epoll_wait(self.epfd, dst, timeout_ms as isize)
+                           .map_err(super::from_nix_error)?;
 
         unsafe { evts.events.set_len(cnt); }
 

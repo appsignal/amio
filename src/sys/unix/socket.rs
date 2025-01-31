@@ -6,8 +6,8 @@ use std::os::unix::io::AsRawFd;
 pub trait Socket : AsRawFd {
     /// Returns the value for the `SO_LINGER` socket option.
     fn linger(&self) -> io::Result<usize> {
-        let linger = try!(nix::getsockopt(self.as_raw_fd(), nix::sockopt::Linger)
-            .map_err(super::from_nix_error));
+        let linger = nix::getsockopt(self.as_raw_fd(), nix::sockopt::Linger)
+            .map_err(super::from_nix_error)?;
 
         if linger.l_onoff > 0 {
             Ok(linger.l_onoff as usize)

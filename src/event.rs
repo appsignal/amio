@@ -121,8 +121,8 @@ impl fmt::Debug for PollOpt {
 
         for &(flag, msg) in flags.iter() {
             if self.contains(flag) {
-                if one { try!(write!(fmt, " | ")) }
-                try!(write!(fmt, "{}", msg));
+                if one { write!(fmt, " | ")? }
+                write!(fmt, "{}", msg)?;
 
                 one = true
             }
@@ -265,8 +265,8 @@ impl fmt::Debug for EventSet {
 
         for &(flag, msg) in flags.iter() {
             if self.contains(flag) {
-                if one { try!(write!(fmt, " | ")) }
-                try!(write!(fmt, "{}", msg));
+                if one { write!(fmt, " | ")? }
+                write!(fmt, "{}", msg)?;
 
                 one = true
             }

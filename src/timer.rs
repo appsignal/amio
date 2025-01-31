@@ -153,9 +153,8 @@ impl<T> Timer<T> {
         let curr = self.wheel[slot];
 
         // Insert the new entry
-        let token = try!(
-            self.entries.insert(Entry::new(token, tick, curr))
-            .map_err(|_| TimerError::overflow()));
+        let token = self.entries.insert(Entry::new(token, tick, curr))
+            .map_err(|_| TimerError::overflow())?;
 
         if curr != EMPTY {
             // If there was a previous entry, set its prev pointer to the new

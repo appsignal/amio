@@ -21,7 +21,7 @@ impl<M: Send> Notify<M> {
     #[inline]
     pub fn with_capacity(capacity: usize) -> io::Result<Notify<M>> {
         Ok(Notify {
-            inner: Arc::new(try!(NotifyInner::with_capacity(capacity)))
+            inner: Arc::new(NotifyInner::with_capacity(capacity)?)
         })
     }
 
@@ -79,7 +79,7 @@ impl<M: Send> NotifyInner<M> {
         Ok(NotifyInner {
             state: AtomicIsize::new(0),
             queue: BoundedQueue::with_capacity(capacity),
-            awaken: try!(sys::Awakener::new())
+            awaken: sys::Awakener::new()?
         })
     }
 

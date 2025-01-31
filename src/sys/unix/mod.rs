@@ -33,8 +33,8 @@ pub fn pipe() -> ::io::Result<(Io, Io)> {
     use nix::fcntl::{O_NONBLOCK, O_CLOEXEC};
     use nix::unistd::pipe2;
 
-    let (rd, wr) = try!(pipe2(O_NONBLOCK | O_CLOEXEC)
-        .map_err(from_nix_error));
+    let (rd, wr) = pipe2(O_NONBLOCK | O_CLOEXEC)
+        .map_err(from_nix_error)?;
 
     Ok((Io::from_raw_fd(rd), Io::from_raw_fd(wr)))
 }
