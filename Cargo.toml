@@ -24,8 +24,6 @@ libc   = "*"
 slab   = "0.1.0"
 time   = "0.1.33"
 bytes  = "0.3.0"
-winapi = "0.2.1"
-miow   = "0.1.1"
 net2   = { version = "0.2.19", default-features = false }
 
 [dev-dependencies]

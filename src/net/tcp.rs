@@ -33,11 +33,6 @@ impl TcpStream {
             SocketAddr::V4(..) => TcpBuilder::new_v4(),
             SocketAddr::V6(..) => TcpBuilder::new_v6(),
         });
-        // Required on Windows for a future `connect_overlapped` operation to be
-        // executed successfully.
-        if cfg!(windows) {
-            try!(sock.bind(&inaddr_any(addr)));
-        }
         TcpStream::connect_stream(try!(sock.to_tcp_stream()), addr)
     }
 
