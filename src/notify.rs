@@ -239,7 +239,7 @@ impl<M> fmt::Display for NotifyError<M> {
 impl<M: any::Any> error::Error for NotifyError<M> {
     fn description(&self) -> &str {
         match *self {
-            NotifyError::Io(ref err) => err.description(),
+            NotifyError::Io(..) => "IO error",
             NotifyError::Closed(..) => "The receiving end has hung up",
             NotifyError::Full(..) => "Queue is full"
         }
