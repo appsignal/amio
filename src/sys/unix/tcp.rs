@@ -24,7 +24,7 @@ pub struct TcpListener {
     selector_id: Cell<Option<usize>>,
 }
 
-fn set_nonblock(s: &AsRawFd) -> io::Result<()> {
+fn set_nonblock(s: &dyn AsRawFd) -> io::Result<()> {
     fcntl(s.as_raw_fd(), F_SETFL(O_NONBLOCK)).map_err(super::from_nix_error)
                                              .map(|_| ())
 }

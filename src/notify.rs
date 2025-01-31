@@ -245,7 +245,7 @@ impl<M: any::Any> error::Error for NotifyError<M> {
         }
     }
 
-    fn cause(&self) -> Option<&error::Error> {
+    fn cause(&self) -> Option<&dyn error::Error> {
         match *self {
             NotifyError::Io(ref err) => Some(err),
             _ => None

@@ -53,7 +53,7 @@ pub fn from_nix_error(err: ::nix::Error) -> ::io::Error {
 mod nix {
     pub use nix::Error;
     pub use nix::libc::c_int;
-    pub use nix::errno::{EINPROGRESS, EAGAIN};
+    pub use nix::errno::EINPROGRESS;
     pub use nix::fcntl::{fcntl, FcntlArg, O_NONBLOCK};
     pub use nix::sys::socket::{
         sockopt,

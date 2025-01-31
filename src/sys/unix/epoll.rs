@@ -59,23 +59,23 @@ impl Selector {
 
     /// Register event interests for the given IO handle with the OS
     pub fn register(&mut self, fd: RawFd, token: Token, interests: EventSet, opts: PollOpt) -> io::Result<()> {
-        let info = EpollEvent {
-            events: ioevent_to_epoll(interests, opts),
-            data: token.as_usize() as u64
-        };
+        let mut info = EpollEvent::new(
+            ioevent_to_epoll(interests, opts),
+            token.as_usize() as u64
+        );
 
-        epoll_ctl(self.epfd, EpollOp::EpollCtlAdd, fd, &info)
+        epoll_ctl(self.epfd, EpollOp::EpollCtlAdd, fd, &mut info)
             .map_err(super::from_nix_error)
     }
 
     /// Register event interests for the given IO handle with the OS
     pub fn reregister(&mut self, fd: RawFd, token: Token, interests: EventSet, opts: PollOpt) -> io::Result<()> {
-        let info = EpollEvent {
-            events: ioevent_to_epoll(interests, opts),
-            data: token.as_usize() as u64
-        };
+        let mut info = EpollEvent::new(
+            ioevent_to_epoll(interests, opts),
+            token.as_usize() as u64
+        );
 
-        epoll_ctl(self.epfd, EpollOp::EpollCtlMod, fd, &info)
+        epoll_ctl(self.epfd, EpollOp::EpollCtlMod, fd, &mut info)
             .map_err(super::from_nix_error)
     }
 
@@ -84,18 +84,18 @@ impl Selector {
         // The &info argument should be ignored by the system,
         // but linux < 2.6.9 required it to be not null.
         // For compatibility, we provide a dummy EpollEvent.
-        let info = EpollEvent {
-            events: EpollEventKind::empty(),
-            data: 0
-        };
+        let mut info = EpollEvent::new(
+            EpollFlags::empty(),
+            0
+        );
 
-        epoll_ctl(self.epfd, EpollOp::EpollCtlDel, fd, &info)
+        epoll_ctl(self.epfd, EpollOp::EpollCtlDel, fd, &mut info)
             .map_err(super::from_nix_error)
     }
 }
 
-fn ioevent_to_epoll(interest: EventSet, opts: PollOpt) -> EpollEventKind {
-    let mut kind = EpollEventKind::empty();
+fn ioevent_to_epoll(interest: EventSet, opts: PollOpt) -> EpollFlags {
+    let mut kind = EpollFlags::empty();
 
     if interest.is_readable() {
         kind.insert(EPOLLIN);
@@ -148,7 +148,7 @@ impl Events {
 
     #[inline]
     pub fn get(&self, idx: usize) -> IoEvent {
-        let epoll = self.events[idx].events;
+        let epoll = self.events[idx].events();
         let mut kind = EventSet::none();
 
         if epoll.contains(EPOLLIN) {
@@ -168,7 +168,7 @@ impl Events {
             kind = kind | EventSet::hup();
         }
 
-        let token = self.events[idx].data;
+        let token = self.events[idx].data();
 
         IoEvent::new(kind, Token(token as usize))
     }
