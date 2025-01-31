@@ -1,5 +1,5 @@
-use mio::*;
-use mio::udp::*;
+use amio::*;
+use amio::udp::*;
 use bytes::{Buf, RingBuf, SliceBuf, MutBuf};
 use std::str;
 use localhost;

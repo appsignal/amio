@@ -126,7 +126,7 @@ impl<H: Handler> EventLoop<H> {
     /// # Example
     /// ```
     /// use std::thread;
-    /// use mio::{EventLoop, Handler};
+    /// use amio::{EventLoop, Handler};
     ///
     /// struct MyHandler;
     ///
@@ -182,7 +182,7 @@ impl<H: Handler> EventLoop<H> {
     ///
     /// # Example
     /// ```
-    /// use mio::{EventLoop, Handler};
+    /// use amio::{EventLoop, Handler};
     ///
     /// struct MyHandler;
     ///

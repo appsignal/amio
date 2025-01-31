@@ -19,8 +19,8 @@
 //! # Example
 //!
 //! ```
-//! use mio::*;
-//! use mio::tcp::{TcpListener, TcpStream};
+//! use amio::*;
+//! use amio::tcp::{TcpListener, TcpStream};
 //!
 //! // Setup some tokens to allow us to identify which event is
 //! // for which socket.

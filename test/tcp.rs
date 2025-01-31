@@ -1,4 +1,4 @@
-extern crate mio;
+extern crate amio;
 extern crate env_logger;
 
 use std::io::prelude::*;
@@ -6,8 +6,8 @@ use std::net;
 use std::sync::mpsc::channel;
 use std::thread;
 
-use mio::{EventLoop, Handler, Token, EventSet, PollOpt, TryRead, TryWrite};
-use mio::tcp::{TcpListener, TcpStream};
+use amio::{EventLoop, Handler, Token, EventSet, PollOpt, TryRead, TryWrite};
+use amio::tcp::{TcpListener, TcpStream};
 
 #[test]
 fn accept() {

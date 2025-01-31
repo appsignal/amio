@@ -1,6 +1,6 @@
 use {localhost, sleep_ms};
-use mio::*;
-use mio::tcp::*;
+use amio::*;
+use amio::tcp::*;
 use std::thread;
 
 struct TestHandler {

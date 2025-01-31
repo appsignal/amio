@@ -1,7 +1,7 @@
-use mio::*;
-use mio::tcp::*;
+use amio::*;
+use amio::tcp::*;
 use bytes::{Buf, ByteBuf, MutByteBuf, SliceBuf};
-use mio::util::Slab;
+use amio::util::Slab;
 use std::io;
 use localhost;
 

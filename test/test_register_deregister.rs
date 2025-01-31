@@ -1,5 +1,5 @@
-use mio::*;
-use mio::tcp::*;
+use amio::*;
+use amio::tcp::*;
 use bytes::SliceBuf;
 use localhost;
 

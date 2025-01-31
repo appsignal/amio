@@ -1,7 +1,7 @@
-use mio::*;
-use mio::unix::*;
+use amio::*;
+use amio::unix::*;
 use bytes::{Buf, ByteBuf, MutByteBuf, SliceBuf};
-use mio::util::Slab;
+use amio::util::Slab;
 use std::path::PathBuf;
 use std::io;
 use tempdir::TempDir;

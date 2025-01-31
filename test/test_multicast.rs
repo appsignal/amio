@@ -1,5 +1,5 @@
-use mio::*;
-use mio::udp::*;
+use amio::*;
+use amio::udp::*;
 use bytes::{Buf, MutBuf, RingBuf, SliceBuf};
 use std::str;
 use std::net::{SocketAddr};

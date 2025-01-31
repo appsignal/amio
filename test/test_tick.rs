@@ -1,5 +1,5 @@
-use mio::*;
-use mio::tcp::*;
+use amio::*;
+use amio::tcp::*;
 use {sleep_ms};
 
 struct TestHandler {

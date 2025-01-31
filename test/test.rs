@@ -1,4 +1,4 @@
-extern crate mio;
+extern crate amio;
 extern crate bytes;
 
 #[macro_use]

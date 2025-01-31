@@ -1,6 +1,6 @@
-use mio::*;
+use amio::*;
 use bytes::ByteBuf;
-use mio::tcp::*;
+use amio::tcp::*;
 use localhost;
 
 use self::TestState::{Initial, AfterRead, AfterHup};

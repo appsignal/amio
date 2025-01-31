@@ -1,5 +1,5 @@
-use mio::*;
-use mio::udp::*;
+use amio::*;
+use amio::udp::*;
 use sleep_ms;
 
 const MS: usize = 1_000;

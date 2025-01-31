@@ -1,7 +1,7 @@
-extern crate mio;
+extern crate amio;
 
-use mio::{EventLoop, Handler, Token, EventSet, PollOpt};
-use mio::tcp::TcpListener;
+use amio::{EventLoop, Handler, Token, EventSet, PollOpt};
+use amio::tcp::TcpListener;
 
 struct E;
 

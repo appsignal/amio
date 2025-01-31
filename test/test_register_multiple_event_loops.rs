@@ -1,7 +1,7 @@
 use localhost;
-use mio::*;
-use mio::tcp::*;
-use mio::udp::*;
+use amio::*;
+use amio::tcp::*;
+use amio::udp::*;
 use std::io::ErrorKind;
 
 struct MyHandler;
