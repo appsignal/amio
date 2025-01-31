@@ -100,30 +100,17 @@ impl Selector {
         self.ev_push(fd, token, filter, flags);
     }
 
-    #[cfg(not(target_os = "netbsd"))]
     fn ev_push(&mut self, fd: RawFd, token: usize, filter: EventFilter, flags: EventFlag) {
         self.changes.sys_events.push(
-            KEvent {
-                ident: fd as ::libc::uintptr_t,
-                filter: filter,
-                flags: flags,
-                fflags: FilterFlag::empty(),
-                data: 0,
-                udata: token
-            });
-    }
-
-    #[cfg(target_os = "netbsd")]
-    fn ev_push(&mut self, fd: RawFd, token: usize, filter: EventFilter, flags: EventFlag) {
-        self.changes.sys_events.push(
-            KEvent {
-                ident: fd as ::libc::uintptr_t,
-                filter: filter,
-                flags: flags,
-                fflags: FilterFlag::empty(),
-                data: 0,
-                udata: token as i64
-            });
+            KEvent::new(
+                fd as ::libc::uintptr_t,
+                filter,
+                flags,
+                FilterFlag::empty(),
+                0,
+                token as isize
+            )
+        );
     }
 
     fn flush_changes(&mut self) -> io::Result<()> {
@@ -164,7 +151,7 @@ impl Events {
         self.event_map.clear();
 
         for e in self.sys_events.iter() {
-            let token = Token(e.udata as usize);
+            let token = Token(e.udata() as usize);
             let len = self.events.len();
 
             let idx = *self.event_map.entry(token)
@@ -176,22 +163,22 @@ impl Events {
 
             }
 
-            if e.flags.contains(EV_ERROR) {
+            if e.flags().contains(EV_ERROR) {
                 self.events[idx].kind.insert(EventSet::error());
             }
 
-            if e.filter == EventFilter::EVFILT_READ {
+            if e.filter() == EventFilter::EVFILT_READ {
                 self.events[idx].kind.insert(EventSet::readable());
-            } else if e.filter == EventFilter::EVFILT_WRITE {
+            } else if e.filter() == EventFilter::EVFILT_WRITE {
                 self.events[idx].kind.insert(EventSet::writable());
             }
 
-            if e.flags.contains(EV_EOF) {
+            if e.flags().contains(EV_EOF) {
                 self.events[idx].kind.insert(EventSet::hup());
 
                 // When the read end of the socket is closed, EV_EOF is set on
                 // flags, and fflags contains the error if there is one.
-                if !e.fflags.is_empty() {
+                if !e.fflags().is_empty() {
                     self.events[idx].kind.insert(EventSet::error());
                 }
             }

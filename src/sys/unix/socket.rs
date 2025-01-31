@@ -1,5 +1,6 @@
 use {io};
 use sys::unix::nix;
+use nix::sys::time::TimeValLike;
 use std::os::unix::io::AsRawFd;
 
 pub trait Socket : AsRawFd {
