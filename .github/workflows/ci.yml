@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    name: "Tests on Linux"
+    steps:
+    - uses: actions/checkout@v4
+    - name: "Run check and tests"
+      run: |
+        cargo check
+        cargo test
+  freedbsd-12:
+    runs-on: ubuntu-latest
+    name: "Tests on FreeBSD 13.4"
+    steps:
+    - uses: actions/checkout@v4
+    - name: "Run check and tests"
+      uses: vmactions/freebsd-vm@v1
+      with:
+        release: 13.4
+        prepare: |
+          pkg install -y rust
+        run: |
+          cargo check
+          cargo test
+  freedbsd-latest:
+    runs-on: ubuntu-latest
+    name: "Tests on latest FreeBSD"
+    steps:
+    - uses: actions/checkout@v4
+    - name: "Run check and tests"
+      uses: vmactions/freebsd-vm@v1
+      with:
+        prepare: |
+          pkg install -y rust
+        run: |
+          cargo check
+          cargo test
