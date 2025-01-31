@@ -2,7 +2,6 @@ use {io};
 use sys::unix::{nix, Io};
 use std::net::SocketAddr;
 use std::os::unix::io::{AsRawFd, RawFd};
-pub use net::tcp::Shutdown;
 
 pub fn socket(family: nix::AddressFamily, ty: nix::SockType, nonblock: bool) -> io::Result<RawFd> {
     let opts = if nonblock {
