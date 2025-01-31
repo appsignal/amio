@@ -3,6 +3,7 @@ use sys::unix::nix;
 use nix::sys::time::TimeValLike;
 use std::os::unix::io::AsRawFd;
 
+#[allow(dead_code)]
 pub trait Socket : AsRawFd {
     /// Returns the value for the `SO_LINGER` socket option.
     fn linger(&self) -> io::Result<usize> {

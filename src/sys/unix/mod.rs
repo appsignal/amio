@@ -54,13 +54,11 @@ mod nix {
     pub use nix::Error;
     pub use nix::libc::c_int;
     pub use nix::errno::EINPROGRESS;
-    pub use nix::fcntl::{fcntl, FcntlArg, O_NONBLOCK};
     pub use nix::sys::socket::{
         sockopt,
         AddressFamily,
         SockAddr,
         SockType,
-        SockLevel,
         InetAddr,
         Ipv4Addr,
         Ipv6Addr,
@@ -72,7 +70,6 @@ mod nix {
         accept4,
         bind,
         connect,
-        getpeername,
         getsockname,
         getsockopt,
         ip_mreq,
@@ -85,14 +82,8 @@ mod nix {
         sendmsg,
         setsockopt,
         socket,
-        shutdown,
-        Shutdown,
     };
     pub use nix::sys::time::TimeVal;
     pub use nix::sys::uio::IoVec;
-    pub use nix::unistd::{
-        read,
-        write,
-        dup,
-    };
+    pub use nix::unistd::dup;
 }

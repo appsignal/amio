@@ -1,5 +1,5 @@
 use std::io::{Read, Write};
-use std::net::{self, SocketAddr, SocketAddrV4, SocketAddrV6, Ipv4Addr, Ipv6Addr};
+use std::net::{self, SocketAddr};
 
 use net2::TcpBuilder;
 
@@ -86,21 +86,6 @@ impl TcpStream {
 
     pub fn take_socket_error(&self) -> io::Result<()> {
         self.sys.take_socket_error()
-    }
-}
-
-fn inaddr_any(other: &SocketAddr) -> SocketAddr {
-    match *other {
-        SocketAddr::V4(..) => {
-            let any = Ipv4Addr::new(0, 0, 0, 0);
-            let addr = SocketAddrV4::new(any, 0);
-            SocketAddr::V4(addr)
-        }
-        SocketAddr::V6(..) => {
-            let any = Ipv6Addr::new(0, 0, 0, 0, 0, 0, 0, 0);
-            let addr = SocketAddrV6::new(any, 0, 0, 0);
-            SocketAddr::V6(addr)
-        }
     }
 }
 

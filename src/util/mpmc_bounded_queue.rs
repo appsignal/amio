@@ -99,15 +99,17 @@ impl<T: Send> State<T> {
             let diff: isize = seq as isize - pos as isize;
 
             if diff == 0 {
-                let enqueue_pos = self.enqueue_pos.compare_and_swap(pos, pos+1, Relaxed);
-                if enqueue_pos == pos {
-                    unsafe {
-                        (*node.get()).value = Some(value);
-                        (*node.get()).sequence.store(pos+1, Release);
+                match self.enqueue_pos.compare_exchange_weak(pos, pos + 1, Relaxed, Relaxed) {
+                    Ok(_) => {  // Successfully updated the atomic value
+                        unsafe {
+                            (*node.get()).value = Some(value);
+                            (*node.get()).sequence.store(pos + 1, Release);
+                        }
+                        break;
                     }
-                    break
-                } else {
-                    pos = enqueue_pos;
+                    Err(current_pos) => {
+                        pos = current_pos; // Update pos with the current value and retry
+                    }
                 }
             } else if diff < 0 {
                 return Err(value);
@@ -126,15 +128,17 @@ impl<T: Send> State<T> {
             let seq = unsafe { (*node.get()).sequence.load(Acquire) };
             let diff: isize = seq as isize - (pos + 1) as isize;
             if diff == 0 {
-                let dequeue_pos = self.dequeue_pos.compare_and_swap(pos, pos+1, Relaxed);
-                if dequeue_pos == pos {
-                    unsafe {
-                        let value = (*node.get()).value.take();
-                        (*node.get()).sequence.store(pos + mask + 1, Release);
-                        return value
+                match self.dequeue_pos.compare_exchange(pos, pos + 1, Relaxed, Relaxed) {
+                    Ok(_) => {
+                        unsafe {
+                            let value = (*node.get()).value.take();
+                            (*node.get()).sequence.store(pos + mask + 1, Release);
+                            return value;
+                        }
                     }
-                } else {
-                    pos = dequeue_pos;
+                    Err(current_pos) => {
+                        pos = current_pos; // Update pos with the latest value and retry
+                    }
                 }
             } else if diff < 0 {
                 return None

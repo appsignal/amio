@@ -87,7 +87,6 @@ impl<M: Send> NotifyInner<M> {
         let max = max as isize;
         let mut cur = self.state.load(Relaxed);
         let mut nxt;
-        let mut val;
 
         loop {
             // This should be impossible if close() in only called from the event loop destructor
@@ -109,13 +108,10 @@ impl<M: Send> NotifyInner<M> {
                 }
             }
 
-            val = self.state.compare_and_swap(cur, nxt, Relaxed);
-
-            if val == cur {
-                break;
+            match self.state.compare_exchange(cur, nxt, Relaxed, Relaxed) {
+                Ok(_) => break, // Swap succeeded, exit the loop
+                Err(current) => cur = current, // Swap failed, update `cur` and retry
             }
-
-            cur = val;
         }
 
         if cur < 0 {
@@ -143,7 +139,6 @@ impl<M: Send> NotifyInner<M> {
         }
 
         let mut nxt;
-        let mut val;
 
         loop {
             nxt = match cur {
@@ -157,13 +152,10 @@ impl<M: Send> NotifyInner<M> {
                 _ => { cur + 1 }
             };
 
-            val = self.state.compare_and_swap(cur, nxt, Relaxed);
-
-            if val == cur {
-                break;
+            match self.state.compare_exchange(cur, nxt, Relaxed, Relaxed) {
+                Ok(_) => break, // Swap succeeded, exit the loop
+                Err(current) => cur = current, // Swap failed, update `cur` and retry
             }
-
-            cur = val;
         }
 
         if cur == SLEEP {
@@ -239,7 +231,7 @@ impl<M> fmt::Display for NotifyError<M> {
 impl<M: any::Any> error::Error for NotifyError<M> {
     fn description(&self) -> &str {
         match *self {
-            NotifyError::Io(ref err) => err.description(),
+            NotifyError::Io(..) => "IO error",
             NotifyError::Closed(..) => "The receiving end has hung up",
             NotifyError::Full(..) => "Queue is full"
         }
