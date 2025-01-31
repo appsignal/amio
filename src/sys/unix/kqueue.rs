@@ -6,14 +6,14 @@ use libc::{timespec, time_t, c_long};
 use std::{fmt, slice};
 use std::os::unix::io::RawFd;
 use std::collections::HashMap;
-use std::sync::atomic::{AtomicUsize, Ordering, ATOMIC_USIZE_INIT};
+use std::sync::atomic::{AtomicUsize, Ordering};
 
 /// Each Selector has a globally unique(ish) ID associated with it. This ID
 /// gets tracked by `TcpStream`, `TcpListener`, etc... when they are first
 /// registered with the `Selector`. If a type that is previously associatd with
 /// a `Selector` attempts to register itself with a different `Selector`, the
 /// operation will return with an error. This matches windows behavior.
-static NEXT_ID: AtomicUsize = ATOMIC_USIZE_INIT;
+static NEXT_ID: AtomicUsize = AtomicUsize::new(0);
 
 #[derive(Debug)]
 pub struct Selector {
