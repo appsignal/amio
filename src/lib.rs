@@ -80,7 +80,6 @@
 //! ```
 
 extern crate bytes;
-extern crate slab;
 extern crate libc;
 
 #[cfg(unix)]
@@ -104,6 +103,7 @@ mod net;
 mod notify;
 mod poll;
 mod sys;
+mod slab;
 mod timer;
 mod token;
 

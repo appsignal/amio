@@ -15,7 +15,6 @@ exclude       = [
 log    = "*"
 nix    = "0.9.0"
 libc   = "*"
-slab   = "0.1.0"
 bytes  = "0.3.0"
 net2   = { version = "*", default-features = false }
 
