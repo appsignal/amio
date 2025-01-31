@@ -27,8 +27,8 @@ bytes  = "0.3.0"
 net2   = { version = "*", default-features = false }
 
 [dev-dependencies]
-env_logger = "0.3.0"
-tempdir    = "0.3.4"
+env_logger = "*"
+tempdir    = "*"
 
 [[test]]
 name = "test"
