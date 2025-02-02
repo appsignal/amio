@@ -1,17 +1,23 @@
 use {io};
-use sys::unix::{nix, Io};
 use std::net::SocketAddr;
 use std::os::unix::io::{AsRawFd, RawFd};
+use sys::unix::{nix, Io};
 
 pub fn socket(family: nix::AddressFamily, ty: nix::SockType, nonblock: bool) -> io::Result<RawFd> {
-    let opts = if nonblock {
-        nix::SOCK_NONBLOCK | nix::SOCK_CLOEXEC
-    } else {
-        nix::SOCK_CLOEXEC
-    };
+    // Create the socket
+    let sock_fd = nix::socket(family, ty, nix::SockFlag::empty(), None)
+        .map_err(super::from_nix_error)?;
 
-    nix::socket(family, ty, opts, 0)
-        .map_err(super::from_nix_error)
+    if nonblock {
+        // Set the socket to nonblocking mode using fcntl
+        let flags = nix::OFlag::from_bits_truncate(
+            nix::fcntl(sock_fd, nix::FcntlArg::F_GETFL).map_err(super::from_nix_error)?
+        );
+        nix::fcntl(sock_fd, nix:: FcntlArg::F_SETFL(flags | nix::OFlag::O_NONBLOCK))
+            .map_err(super::from_nix_error)?;
+    }
+
+    Ok(sock_fd)
 }
 
 pub fn connect(io: &Io, addr: &nix::SockAddr) -> io::Result<bool> {
@@ -37,14 +43,19 @@ pub fn listen(io: &Io, backlog: usize) -> io::Result<()> {
 }
 
 pub fn accept(io: &Io, nonblock: bool) -> io::Result<RawFd> {
-    let opts = if nonblock {
-        nix::SOCK_NONBLOCK | nix::SOCK_CLOEXEC
-    } else {
-        nix::SOCK_CLOEXEC
-    };
+    let sock_fd = nix::accept4(io.as_raw_fd(), nix::SockFlag::empty())
+        .map_err(super::from_nix_error)?;
 
-    nix::accept4(io.as_raw_fd(), opts)
-        .map_err(super::from_nix_error)
+    if nonblock {
+        // Set the socket to nonblocking mode using fcntl
+        let flags = nix::OFlag::from_bits_truncate(
+            nix::fcntl(sock_fd, nix::FcntlArg::F_GETFL).map_err(super::from_nix_error)?
+        );
+        nix::fcntl(sock_fd, nix:: FcntlArg::F_SETFL(flags | nix::OFlag::O_NONBLOCK))
+            .map_err(super::from_nix_error)?;
+    }
+
+    Ok(sock_fd)
 }
 
 // UDP & UDS
@@ -57,7 +68,7 @@ pub fn recvfrom(io: &Io, buf: &mut [u8]) -> io::Result<(usize, nix::SockAddr)> {
 // UDP & UDS
 #[inline]
 pub fn sendto(io: &Io, buf: &[u8], target: &nix::SockAddr) -> io::Result<usize> {
-    nix::sendto(io.as_raw_fd(), buf, target, nix::MSG_DONTWAIT)
+    nix::sendto(io.as_raw_fd(), buf, target, nix::MsgFlags::MSG_DONTWAIT)
         .map_err(super::from_nix_error)
 }
 
