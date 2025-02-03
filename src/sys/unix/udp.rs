@@ -58,10 +58,9 @@ impl UdpSocket {
             .map_non_block()
     }
 
-    pub fn recv_from(&self, buf: &mut [u8])
-                     -> io::Result<Option<(usize, SocketAddr)>> {
+    pub fn recv_from(&self, buf: &mut [u8]) -> io::Result<Option<(usize, Option<SocketAddr>)>> {
         net::recvfrom(&self.io, buf)
-            .map(|(cnt, addr)| (cnt, net::to_std_addr(addr)))
+            .map(|(cnt, addr_opt)| (cnt, addr_opt.map(net::to_std_addr)))
             .map_non_block()
     }
 

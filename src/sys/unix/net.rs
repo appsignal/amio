@@ -59,7 +59,7 @@ pub fn accept(io: &Io, nonblock: bool) -> io::Result<RawFd> {
 
 // UDP & UDS
 #[inline]
-pub fn recvfrom(io: &Io, buf: &mut [u8]) -> io::Result<(usize, nix::SockAddr)> {
+pub fn recvfrom(io: &Io, buf: &mut [u8]) -> io::Result<(usize, Option<nix::SockAddr>)> {
     nix::recvfrom(io.as_raw_fd(), buf)
         .map_err(super::from_nix_error)
 }

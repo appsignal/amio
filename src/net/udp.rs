@@ -51,7 +51,7 @@ impl UdpSocket {
     }
 
     pub fn recv_from(&self, buf: &mut [u8])
-                     -> io::Result<Option<(usize, SocketAddr)>> {
+                     -> io::Result<Option<(usize, Option<SocketAddr>)>> {
         self.sys.recv_from(buf)
     }
 
