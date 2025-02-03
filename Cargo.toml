@@ -13,7 +13,7 @@ exclude       = [
 
 [dependencies]
 log    = "*"
-nix    = "0.14"
+nix    = "0.15"
 libc   = "*"
 bytes  = "0.3.0"
 net2   = { version = "*", default-features = false }
