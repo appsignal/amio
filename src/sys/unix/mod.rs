@@ -54,7 +54,7 @@ pub fn from_nix_error(err: ::nix::Error) -> ::io::Error {
 }
 
 mod nix {
-    pub use nix::Error;
+    pub use nix::{Error, cmsg_space};
     pub use nix::libc::{c_int, linger};
     pub use nix::fcntl::{fcntl, FcntlArg, OFlag};
     pub use nix::sys::socket::MsgFlags;
@@ -71,7 +71,7 @@ mod nix {
         Ipv4Addr,
         Ipv6Addr,
         ControlMessage,
-        CmsgSpace,
+        ControlMessageOwned,
         accept,
         bind,
         connect,
