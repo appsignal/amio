@@ -43,15 +43,14 @@ pub fn listen(io: &Io, backlog: usize) -> io::Result<()> {
 }
 
 pub fn accept(io: &Io, nonblock: bool) -> io::Result<RawFd> {
-    let sock_fd = nix::accept4(io.as_raw_fd(), nix::SockFlag::empty())
-        .map_err(super::from_nix_error)?;
+    let sock_fd = nix::accept(io.as_raw_fd()).map_err(super::from_nix_error)?;
 
     if nonblock {
         // Set the socket to nonblocking mode using fcntl
         let flags = nix::OFlag::from_bits_truncate(
             nix::fcntl(sock_fd, nix::FcntlArg::F_GETFL).map_err(super::from_nix_error)?
         );
-        nix::fcntl(sock_fd, nix:: FcntlArg::F_SETFL(flags | nix::OFlag::O_NONBLOCK))
+        nix::fcntl(sock_fd, nix::FcntlArg::F_SETFL(flags | nix::OFlag::O_NONBLOCK))
             .map_err(super::from_nix_error)?;
     }
 

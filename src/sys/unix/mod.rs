@@ -72,7 +72,7 @@ mod nix {
         Ipv6Addr,
         ControlMessage,
         CmsgSpace,
-        accept4,
+        accept,
         bind,
         connect,
         getsockname,
