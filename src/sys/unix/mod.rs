@@ -30,51 +30,60 @@ pub use self::udp::UdpSocket;
 pub use self::uds::UnixSocket;
 
 pub fn pipe() -> ::io::Result<(Io, Io)> {
-    use nix::fcntl::{O_NONBLOCK, O_CLOEXEC};
-    use nix::unistd::pipe2;
+    // Create pipe without flags
+    let (rd, wr) = nix::pipe().map_err(from_nix_error)?;
 
-    let (rd, wr) = pipe2(O_NONBLOCK | O_CLOEXEC)
-        .map_err(from_nix_error)?;
+    // Set O_CLOEXEC and O_NONBLOCK manually
+    for &fd in &[rd, wr] {
+        let flags = nix::OFlag::from_bits_truncate(nix::fcntl(fd, nix::FcntlArg::F_GETFL).map_err(from_nix_error)?);
+        nix::fcntl(fd, nix::FcntlArg::F_SETFL(flags | nix::OFlag::O_CLOEXEC | nix::OFlag::O_NONBLOCK)).map_err(from_nix_error)?;
+    }
 
     Ok((Io::from_raw_fd(rd), Io::from_raw_fd(wr)))
 }
 
 pub fn from_nix_error(err: ::nix::Error) -> ::io::Error {
     match err {
-        nix::Error::Sys(errno) => {
-            ::io::Error::from_raw_os_error(errno as i32)
-        },
-        _ => {
-            ::io::Error::new(::io::ErrorKind::Other, err)
-        }
+        nix::Error::EINVAL
+        | nix::Error::EAGAIN
+        | nix::Error::EINTR
+        | nix::Error::EIO
+        | nix::Error::ECONNRESET
+        | nix::Error::EADDRINUSE
+        | nix::Error::EADDRNOTAVAIL
+        | nix::Error::EPIPE
+        | nix::Error::ETIMEDOUT
+        | nix::Error::EINPROGRESS
+        | nix::Error::ECONNREFUSED
+        | nix::Error::ENOENT => std::io::Error::from_raw_os_error(err as i32),
+        _ => std::io::Error::new(std::io::ErrorKind::Other, err),
     }
 }
 
 mod nix {
-    pub use nix::Error;
-    pub use nix::libc::c_int;
-    pub use nix::errno::EINPROGRESS;
+    pub use nix::{cmsg_space, Error};
+    pub use nix::libc::{c_int, linger};
+    pub use nix::fcntl::{fcntl, FcntlArg, OFlag};
+    pub use nix::sys::socket::MsgFlags;
+    pub use nix::errno::Errno;
     pub use nix::sys::socket::{
         sockopt,
         AddressFamily,
         SockAddr,
+        SockFlag,
         SockType,
         InetAddr,
+        IpMembershipRequest,
+        Ipv6MembershipRequest,
         Ipv4Addr,
         Ipv6Addr,
         ControlMessage,
-        CmsgSpace,
-        MSG_DONTWAIT,
-        SOCK_NONBLOCK,
-        SOCK_CLOEXEC,
-        accept4,
+        ControlMessageOwned,
+        accept,
         bind,
         connect,
         getsockname,
         getsockopt,
-        ip_mreq,
-        ipv6_mreq,
-        linger,
         listen,
         recvfrom,
         recvmsg,
@@ -85,5 +94,5 @@ mod nix {
     };
     pub use nix::sys::time::TimeVal;
     pub use nix::sys::uio::IoVec;
-    pub use nix::unistd::dup;
+    pub use nix::unistd::{dup, pipe};
 }

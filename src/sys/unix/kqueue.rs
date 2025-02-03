@@ -1,7 +1,6 @@
 use {io, EventSet, PollOpt, Token};
 use event::IoEvent;
 use nix::sys::event::{EventFilter, EventFlag, FilterFlag, KEvent, kqueue, kevent, kevent_ts};
-use nix::sys::event::{EV_ADD, EV_CLEAR, EV_DELETE, EV_DISABLE, EV_ENABLE, EV_EOF, EV_ERROR, EV_ONESHOT};
 use libc::{timespec, time_t, c_long};
 use std::{fmt, slice};
 use std::os::unix::io::RawFd;
@@ -74,27 +73,27 @@ impl Selector {
     }
 
     pub fn deregister(&mut self, fd: RawFd) -> io::Result<()> {
-        self.ev_push(fd, 0, EventFilter::EVFILT_READ, EV_DELETE);
-        self.ev_push(fd, 0, EventFilter::EVFILT_WRITE, EV_DELETE);
+        self.ev_push(fd, 0, EventFilter::EVFILT_READ, EventFlag::EV_DELETE);
+        self.ev_push(fd, 0, EventFilter::EVFILT_WRITE, EventFlag::EV_DELETE);
 
         self.flush_changes()
     }
 
     fn ev_register(&mut self, fd: RawFd, token: usize, filter: EventFilter, enable: bool, opts: PollOpt) {
-        let mut flags = EV_ADD;
+        let mut flags = EventFlag::EV_ADD;
 
         if enable {
-            flags = flags | EV_ENABLE;
+            flags = flags | EventFlag::EV_ENABLE;
         } else {
-            flags = flags | EV_DISABLE;
+            flags = flags | EventFlag::EV_DISABLE;
         }
 
         if opts.contains(PollOpt::edge()) {
-            flags = flags | EV_CLEAR;
+            flags = flags | EventFlag::EV_CLEAR;
         }
 
         if opts.contains(PollOpt::oneshot()) {
-            flags = flags | EV_ONESHOT;
+            flags = flags | EventFlag::EV_ONESHOT;
         }
 
         self.ev_push(fd, token, filter, flags);
@@ -163,17 +162,17 @@ impl Events {
 
             }
 
-            if e.flags().contains(EV_ERROR) {
+            if e.flags().contains(EventFlag::EV_ERROR) {
                 self.events[idx].kind.insert(EventSet::error());
             }
 
-            if e.filter() == EventFilter::EVFILT_READ {
+            if e.filter() == Ok(EventFilter::EVFILT_READ) {
                 self.events[idx].kind.insert(EventSet::readable());
-            } else if e.filter() == EventFilter::EVFILT_WRITE {
+            } else if e.filter() == Ok(EventFilter::EVFILT_WRITE) {
                 self.events[idx].kind.insert(EventSet::writable());
             }
 
-            if e.flags().contains(EV_EOF) {
+            if e.flags().contains(EventFlag::EV_EOF) {
                 self.events[idx].kind.insert(EventSet::hup());
 
                 // When the read end of the socket is closed, EV_EOF is set on

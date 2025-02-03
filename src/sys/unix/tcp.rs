@@ -6,8 +6,9 @@ use std::os::unix::io::{RawFd, FromRawFd, AsRawFd};
 
 use libc;
 use net2::TcpStreamExt;
+use nix::fcntl::fcntl;
 use nix::fcntl::FcntlArg::F_SETFL;
-use nix::fcntl::{fcntl, O_NONBLOCK};
+use nix::fcntl::OFlag;
 
 use {io, Evented, EventSet, PollOpt, Selector, Token};
 use sys::unix::eventedfd::EventedFd;
@@ -25,7 +26,7 @@ pub struct TcpListener {
 }
 
 fn set_nonblock(s: &dyn AsRawFd) -> io::Result<()> {
-    fcntl(s.as_raw_fd(), F_SETFL(O_NONBLOCK)).map_err(super::from_nix_error)
+    fcntl(s.as_raw_fd(), F_SETFL(OFlag::O_NONBLOCK)).map_err(super::from_nix_error)
                                              .map(|_| ())
 }
 

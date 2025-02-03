@@ -98,27 +98,27 @@ fn ioevent_to_epoll(interest: EventSet, opts: PollOpt) -> EpollFlags {
     let mut kind = EpollFlags::empty();
 
     if interest.is_readable() {
-        kind.insert(EPOLLIN);
+        kind.insert(EpollFlags::EPOLLIN);
     }
 
     if interest.is_writable() {
-        kind.insert(EPOLLOUT);
+        kind.insert(EpollFlags::EPOLLOUT);
     }
 
     if interest.is_hup() {
-        kind.insert(EPOLLRDHUP);
+        kind.insert(EpollFlags::EPOLLRDHUP);
     }
 
     if opts.is_edge() {
-        kind.insert(EPOLLET);
+        kind.insert(EpollFlags::EPOLLET);
     }
 
     if opts.is_oneshot() {
-        kind.insert(EPOLLONESHOT);
+        kind.insert(EpollFlags::EPOLLONESHOT);
     }
 
     if opts.is_level() {
-        kind.remove(EPOLLET);
+        kind.remove(EpollFlags::EPOLLET);
     }
 
     kind
@@ -151,20 +151,20 @@ impl Events {
         let epoll = self.events[idx].events();
         let mut kind = EventSet::none();
 
-        if epoll.contains(EPOLLIN) {
+        if epoll.contains(EpollFlags::EPOLLIN) {
             kind = kind | EventSet::readable();
         }
 
-        if epoll.contains(EPOLLOUT) {
+        if epoll.contains(EpollFlags::EPOLLOUT) {
             kind = kind | EventSet::writable();
         }
 
         // EPOLLHUP - Usually means a socket error happened
-        if epoll.contains(EPOLLERR) {
+        if epoll.contains(EpollFlags::EPOLLERR) {
             kind = kind | EventSet::error();
         }
 
-        if epoll.contains(EPOLLRDHUP) | epoll.contains(EPOLLHUP) {
+        if epoll.contains(EpollFlags::EPOLLRDHUP) | epoll.contains(EpollFlags::EPOLLHUP) {
             kind = kind | EventSet::hup();
         }
 

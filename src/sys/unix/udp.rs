@@ -58,10 +58,9 @@ impl UdpSocket {
             .map_non_block()
     }
 
-    pub fn recv_from(&self, buf: &mut [u8])
-                     -> io::Result<Option<(usize, SocketAddr)>> {
+    pub fn recv_from(&self, buf: &mut [u8]) -> io::Result<Option<(usize, Option<SocketAddr>)>> {
         net::recvfrom(&self.io, buf)
-            .map(|(cnt, addr)| (cnt, net::to_std_addr(addr)))
+            .map(|(cnt, addr_opt)| (cnt, addr_opt.map(net::to_std_addr)))
             .map_non_block()
     }
 
@@ -79,7 +78,7 @@ impl UdpSocket {
         match *multi {
             IpAddr::V4(ref addr) => {
                 // Create the request
-                let req = nix::ip_mreq::new(nix::Ipv4Addr::from_std(addr), None);
+                let req = nix::IpMembershipRequest::new(nix::Ipv4Addr::from_std(addr), None);
 
                 // Set the socket option
                 nix::setsockopt(self.as_raw_fd(), nix::sockopt::IpAddMembership, &req)
@@ -87,7 +86,7 @@ impl UdpSocket {
             }
             IpAddr::V6(ref addr) => {
                 // Create the request
-                let req = nix::ipv6_mreq::new(nix::Ipv6Addr::from_std(addr));
+                let req = nix::Ipv6MembershipRequest::new(nix::Ipv6Addr::from_std(addr));
 
                 // Set the socket option
                 nix::setsockopt(self.as_raw_fd(), nix::sockopt::Ipv6AddMembership, &req)
@@ -100,7 +99,7 @@ impl UdpSocket {
         match *multi {
             IpAddr::V4(ref addr) => {
                 // Create the request
-                let req = nix::ip_mreq::new(nix::Ipv4Addr::from_std(addr), None);
+                let req = nix::IpMembershipRequest::new(nix::Ipv4Addr::from_std(addr), None);
 
                 // Set the socket option
                 nix::setsockopt(self.as_raw_fd(), nix::sockopt::IpDropMembership, &req)
@@ -108,7 +107,7 @@ impl UdpSocket {
             }
             IpAddr::V6(ref addr) => {
                 // Create the request
-                let req = nix::ipv6_mreq::new(nix::Ipv6Addr::from_std(addr));
+                let req = nix::Ipv6MembershipRequest::new(nix::Ipv6Addr::from_std(addr));
 
                 // Set the socket option
                 nix::setsockopt(self.as_raw_fd(), nix::sockopt::Ipv6DropMembership, &req)

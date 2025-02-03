@@ -50,12 +50,12 @@ impl UnixSocket {
 
     pub fn read_recv_fd(&mut self, buf: &mut [u8]) -> io::Result<(usize, Option<RawFd>)> {
         let iov = [nix::IoVec::from_mut_slice(buf)];
-        let mut cmsgspace: nix::CmsgSpace<[RawFd; 1]> = nix::CmsgSpace::new();
+        let mut cmsgspace = nix::cmsg_space!([RawFd; 1]);
         let msg = nix::recvmsg(self.io.as_raw_fd(), &iov, Some(&mut cmsgspace), MsgFlags::empty())
                            .map_err(super::from_nix_error)?;
         let mut fd = None;
         for cmsg in msg.cmsgs() {
-            if let nix::ControlMessage::ScmRights(fds) = cmsg {
+            if let nix::ControlMessageOwned::ScmRights(fds) = cmsg {
                 // statically, there is room for at most one fd
                 if fds.len() == 1 {
                     fd = Some(fds[0]);
