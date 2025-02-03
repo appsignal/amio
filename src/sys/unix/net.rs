@@ -25,7 +25,7 @@ pub fn connect(io: &Io, addr: &nix::SockAddr) -> io::Result<bool> {
         Ok(_) => Ok(true),
         Err(e) => {
             match e {
-                nix::Error::Sys(nix::EINPROGRESS) => Ok(false),
+                nix::Errno::EINPROGRESS => Ok(false),
                 _ => Err(super::from_nix_error(e))
             }
         }

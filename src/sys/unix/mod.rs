@@ -44,21 +44,28 @@ pub fn pipe() -> ::io::Result<(Io, Io)> {
 
 pub fn from_nix_error(err: ::nix::Error) -> ::io::Error {
     match err {
-        nix::Error::Sys(errno) => {
-            ::io::Error::from_raw_os_error(errno as i32)
-        },
-        _ => {
-            ::io::Error::new(::io::ErrorKind::Other, err)
-        }
+        nix::Error::EINVAL
+        | nix::Error::EAGAIN
+        | nix::Error::EINTR
+        | nix::Error::EIO
+        | nix::Error::ECONNRESET
+        | nix::Error::EADDRINUSE
+        | nix::Error::EADDRNOTAVAIL
+        | nix::Error::EPIPE
+        | nix::Error::ETIMEDOUT
+        | nix::Error::EINPROGRESS
+        | nix::Error::ECONNREFUSED
+        | nix::Error::ENOENT => std::io::Error::from_raw_os_error(err as i32),
+        _ => std::io::Error::new(std::io::ErrorKind::Other, err),
     }
 }
 
 mod nix {
-    pub use nix::{Error, cmsg_space};
+    pub use nix::{cmsg_space, Error};
     pub use nix::libc::{c_int, linger};
     pub use nix::fcntl::{fcntl, FcntlArg, OFlag};
     pub use nix::sys::socket::MsgFlags;
-    pub use nix::errno::Errno::EINPROGRESS;
+    pub use nix::errno::Errno;
     pub use nix::sys::socket::{
         sockopt,
         AddressFamily,
