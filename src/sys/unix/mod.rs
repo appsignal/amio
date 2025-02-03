@@ -54,7 +54,6 @@ pub fn from_nix_error(err: ::nix::Error) -> ::io::Error {
 }
 
 mod nix {
-    pub use nix::sys;
     pub use nix::{Error, cmsg_space};
     pub use nix::libc::{c_int, linger};
     pub use nix::fcntl::{fcntl, FcntlArg, OFlag};
