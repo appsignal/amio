@@ -166,9 +166,9 @@ impl Events {
                 self.events[idx].kind.insert(EventSet::error());
             }
 
-            if e.filter() == EventFilter::EVFILT_READ {
+            if e.filter() == Ok(EventFilter::EVFILT_READ) {
                 self.events[idx].kind.insert(EventSet::readable());
-            } else if e.filter() == EventFilter::EVFILT_WRITE {
+            } else if e.filter() == Ok(EventFilter::EVFILT_WRITE) {
                 self.events[idx].kind.insert(EventSet::writable());
             }
 
