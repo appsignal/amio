@@ -32,7 +32,7 @@ impl UdpHandler {
             LISTENER => {
                 debug!("We are receiving a datagram now...");
                 match unsafe { self.rx.recv_from(self.rx_buf.mut_bytes()) } {
-                    Ok(Some((cnt, SocketAddr::V4(addr)))) => {
+                    Ok(Some((cnt, Some(SocketAddr::V4(addr))))) => {
                         unsafe { MutBuf::advance(&mut self.rx_buf, cnt); }
                         assert_eq!(*addr.ip(), Ipv4Addr::new(127, 0, 0, 1));
                     }
